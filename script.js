@@ -17,7 +17,20 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Form submitted:', { name, email, subject, message });
             
             // Show success message
-            alert('Thank you for your message! I will get back to you soon.');
+            let successMsg = document.getElementById('contact-success-message');
+            if (!successMsg) {
+                successMsg = document.createElement('div');
+                successMsg.id = 'contact-success-message';
+                successMsg.className = 'success-message';
+                contactForm.parentNode.insertBefore(successMsg, contactForm.nextSibling);
+            }
+            successMsg.textContent = 'Thank you for your message! I will get back to you soon.';
+            successMsg.style.display = 'block';
+            
+            // Optionally hide the message after 5 seconds
+            setTimeout(function() {
+                successMsg.style.display = 'none';
+            }, 5000);
             
             // Reset form
             contactForm.reset();
