@@ -116,4 +116,4 @@ The website is compatible with all modern browsers:
 
 ## Contact
 
-For any questions or inquiries, visit the [Contact page](https://www.kevindfranklin.com/contact.html) or email: contact@kevindfranklin.com
+For any questions or inquiries, visit the [Contact page](https://www.kevindfranklin.com/contact.html) or email: info@kevindfranklin.com
