@@ -5,13 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "npm run dev --prefix app",
-    "build": "npm run build --prefix app",
+    "build": "npm run migrate && npm run build --prefix app",
     "preview": "npm run preview --prefix app",
     "install:app": "npm install --prefix app",
-    "install:api": "npm install --prefix api"
+    "install:api": "npm install --prefix api",
+    "migrate": "node scripts/auto-migrate.js",
+    "postinstall": "npm install --prefix api"
   },
   "workspaces": [
     "app",
     "api"
-  ]
+  ],
+  "dependencies": {
+    "@neondatabase/serverless": "^0.9.5"
+  }
 }
