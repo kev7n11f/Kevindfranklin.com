@@ -1,6 +1,7 @@
 import { verifyToken } from '../utils/jwt.js';
 import { query } from '../../db/connection.js';
 import { unauthorized } from '../utils/response.js';
+import crypto from 'crypto';
 
 /**
  * Middleware to authenticate user from JWT token
@@ -95,7 +96,6 @@ export async function optionalAuth(req, res) {
  * Hash token for session storage
  */
 function hashToken(token) {
-  const crypto = await import('crypto');
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
