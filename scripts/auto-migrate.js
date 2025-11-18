@@ -104,6 +104,9 @@ async function runMigrations() {
         if (error.message.includes('already exists')) {
           console.log(`   ⚠️  Skipping existing object (${i + 1}/${statements.length})`);
         } else {
+          console.error(`\n❌ Error at statement ${i + 1}/${statements.length}:`);
+          console.error(`Statement preview: ${statement.substring(0, 200)}...`);
+          console.error(`Error: ${error.message}\n`);
           throw error;
         }
       }
