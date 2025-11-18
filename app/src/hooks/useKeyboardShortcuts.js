@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 /**
@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom'
  */
 export const useKeyboardShortcuts = () => {
   const navigate = useNavigate()
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false)
 
   useEffect(() => {
     let lastKey = null
@@ -81,7 +82,7 @@ export const useKeyboardShortcuts = () => {
             lastKeyTime = currentTime
             break
 
-          case '/':
+          case '/': {
             event.preventDefault()
             // Focus search input if on dashboard
             const searchInput = document.querySelector('input[type="text"][placeholder*="Search"]')
@@ -89,10 +90,11 @@ export const useKeyboardShortcuts = () => {
               searchInput.focus()
             }
             break
+          }
 
           case '?':
             event.preventDefault()
-            showShortcutsHelp()
+            setShowShortcutsModal(true)
             break
 
           case 'r':
@@ -129,33 +131,11 @@ export const useKeyboardShortcuts = () => {
       document.removeEventListener('keydown', handleKeyPress)
     }
   }, [navigate])
-}
 
-const showShortcutsHelp = () => {
-  const helpText = `
-Keyboard Shortcuts:
-
-Navigation:
-  g + d     Go to Dashboard
-  g + r     Go to Drafts
-  g + a     Go to Analytics
-  g + u     Go to Rules
-  g + b     Go to Budget
-  g + s     Go to Settings
-
-Actions:
-  /         Focus search
-  r         Refresh/sync emails
-  Esc       Cancel/blur input
-  ?         Show this help
-
-Tips:
-- Press 'g' followed by a letter to navigate
-- Most shortcuts don't work when typing in input fields
-- Press 'Esc' to cancel any input operation
-  `.trim()
-
-  alert(helpText)
+  return {
+    showShortcutsModal,
+    setShowShortcutsModal,
+  }
 }
 
 export default useKeyboardShortcuts
