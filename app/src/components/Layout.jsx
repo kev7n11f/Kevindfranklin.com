@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useApp } from '../contexts/AppContext'
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import Notifications from './Notifications'
 import {
   Mail,
@@ -12,12 +13,16 @@ import {
   AlertCircle,
   Zap,
   BarChart3,
+  Keyboard,
 } from 'lucide-react'
 
 const Layout = ({ children }) => {
   const location = useLocation()
   const { user, logout } = useAuth()
   const { budget, syncing, syncEmails } = useApp()
+
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts()
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Mail },
