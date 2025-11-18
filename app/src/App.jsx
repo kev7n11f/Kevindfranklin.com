@@ -1,26 +1,34 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
 import { AuthProvider } from './contexts/AuthContext'
 import { AppProvider } from './contexts/AppContext'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import EmailView from './pages/EmailView'
-import Drafts from './pages/Drafts'
-import Settings from './pages/Settings'
-import Budget from './pages/Budget'
-import Rules from './pages/Rules'
-import Analytics from './pages/Analytics'
 import PrivateRoute from './components/PrivateRoute'
+
+// Lazy load page components for better performance
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const EmailView = lazy(() => import('./pages/EmailView'))
+const Drafts = lazy(() => import('./pages/Drafts'))
+const Settings = lazy(() => import('./pages/Settings'))
+const Budget = lazy(() => import('./pages/Budget'))
+const Rules = lazy(() => import('./pages/Rules'))
+const Analytics = lazy(() => import('./pages/Analytics'))
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <AppProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          }>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
             {/* Protected routes */}
             <Route
@@ -83,9 +91,10 @@ function App() {
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* 404 */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+              {/* 404 */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </Suspense>
         </AppProvider>
       </AuthProvider>
     </Router>
