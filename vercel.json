@@ -1,40 +1,20 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
+  "outputDirectory": "app/dist",
   "installCommand": "npm install",
-  "builds": [
+  "rewrites": [
     {
-      "src": "app/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "app/dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/(bio|contact).html",
+      "destination": "/$1.html"
     },
     {
-      "src": "/app/(.*)",
-      "dest": "/app/$1"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
-      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(bio|contact)\\.html",
-      "dest": "/$1.html"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/app/dist/index.html"
+      "source": "/((?!api).*)",
+      "destination": "/index.html"
     }
   ],
   "env": {

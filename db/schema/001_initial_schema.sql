@@ -106,16 +106,8 @@ CREATE TABLE emails (
     ai_analyzed_at TIMESTAMP WITH TIME ZONE,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    -- Indexes for performance
-    INDEX idx_emails_user_id (user_id),
-    INDEX idx_emails_account_id (email_account_id),
-    INDEX idx_emails_received_at (received_at DESC),
-    INDEX idx_emails_priority (priority_level, received_at DESC),
-    INDEX idx_emails_category (category),
-    INDEX idx_emails_thread_id (thread_id),
-    INDEX idx_emails_is_read (is_read)
 );
 
 -- Email drafts table
@@ -150,11 +142,8 @@ CREATE TABLE email_drafts (
     sent_at TIMESTAMP WITH TIME ZONE,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    INDEX idx_drafts_user_id (user_id),
-    INDEX idx_drafts_status (status),
-    INDEX idx_drafts_email_id (original_email_id)
 );
 
 -- Email rules/filters
@@ -178,10 +167,8 @@ CREATE TABLE email_rules (
     last_applied_at TIMESTAMP WITH TIME ZONE,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    INDEX idx_rules_user_id (user_id),
-    INDEX idx_rules_priority (priority DESC)
 );
 
 -- Budget tracking table
@@ -214,7 +201,6 @@ CREATE TABLE budget_usage (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 
-    INDEX idx_budget_user_period (user_id, period_start, period_end),
     UNIQUE(user_id, period_start)
 );
 
@@ -239,10 +225,8 @@ CREATE TABLE api_usage_logs (
     success BOOLEAN DEFAULT true,
     error_message TEXT,
 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    INDEX idx_api_logs_user_id (user_id),
-    INDEX idx_api_logs_created_at (created_at DESC)
 );
 
 -- Notifications table
@@ -259,11 +243,8 @@ CREATE TABLE notifications (
     is_read BOOLEAN DEFAULT false,
     read_at TIMESTAMP WITH TIME ZONE,
 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    INDEX idx_notifications_user_id (user_id),
-    INDEX idx_notifications_is_read (is_read),
-    INDEX idx_notifications_created_at (created_at DESC)
 );
 
 -- Email summaries table (daily/weekly summaries)
@@ -282,11 +263,8 @@ CREATE TABLE email_summaries (
     highlights JSONB, -- Key points, important emails
     stats JSONB, -- Email volume, response times, etc.
 
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    INDEX idx_summaries_user_id (user_id),
-    INDEX idx_summaries_period (period_start, period_end),
-    INDEX idx_summaries_type (summary_type)
 );
 
 -- Sessions table (for JWT token management)
@@ -302,10 +280,8 @@ CREATE TABLE sessions (
     ip_address INET,
 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_activity TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    last_activity TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 
-    INDEX idx_sessions_user_id (user_id),
-    INDEX idx_sessions_expires_at (expires_at)
 );
 
 -- Create updated_at trigger function
@@ -335,3 +311,42 @@ CREATE TRIGGER update_email_rules_updated_at BEFORE UPDATE ON email_rules
 
 CREATE TRIGGER update_budget_usage_updated_at BEFORE UPDATE ON budget_usage
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create indexes for emails table
+CREATE INDEX IF NOT EXISTS idx_emails_user_id ON emails(user_id);
+CREATE INDEX IF NOT EXISTS idx_emails_account_id ON emails(email_account_id);
+CREATE INDEX IF NOT EXISTS idx_emails_received_at ON emails(received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emails_priority ON emails(priority_level, received_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emails_category ON emails(category);
+CREATE INDEX IF NOT EXISTS idx_emails_thread_id ON emails(thread_id);
+CREATE INDEX IF NOT EXISTS idx_emails_is_read ON emails(is_read);
+
+-- Create indexes for email_drafts table
+CREATE INDEX IF NOT EXISTS idx_drafts_user_id ON email_drafts(user_id);
+CREATE INDEX IF NOT EXISTS idx_drafts_status ON email_drafts(status);
+CREATE INDEX IF NOT EXISTS idx_drafts_email_id ON email_drafts(original_email_id);
+
+-- Create indexes for email_rules table
+CREATE INDEX IF NOT EXISTS idx_rules_user_id ON email_rules(user_id);
+CREATE INDEX IF NOT EXISTS idx_rules_priority ON email_rules(priority DESC);
+
+-- Create indexes for budget_usage table  
+CREATE INDEX IF NOT EXISTS idx_budget_user_period ON budget_usage(user_id, period_start, period_end);
+
+-- Create indexes for api_usage_logs table
+CREATE INDEX IF NOT EXISTS idx_api_logs_user_id ON api_usage_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_logs_created_at ON api_usage_logs(created_at DESC);
+
+-- Create indexes for notifications table
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);
+
+-- Create indexes for email_summaries table
+CREATE INDEX IF NOT EXISTS idx_summaries_user_id ON email_summaries(user_id);
+CREATE INDEX IF NOT EXISTS idx_summaries_period ON email_summaries(period_start, period_end);
+CREATE INDEX IF NOT EXISTS idx_summaries_type ON email_summaries(summary_type);
+
+-- Create indexes for sessions table
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);

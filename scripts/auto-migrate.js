@@ -12,6 +12,60 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+/**
+ * Smart SQL statement splitter that handles functions, triggers, and procedures
+ * Respects $$ delimiters used in PostgreSQL function bodies
+ */
+function splitSqlStatements(sql) {
+  const statements = [];
+  let current = '';
+  let inDollarQuote = false;
+  let dollarTag = '';
+
+  const lines = sql.split('\n');
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+
+    // Skip comments
+    if (trimmedLine.startsWith('--')) {
+      continue;
+    }
+
+    // Check for dollar quote delimiters ($$, $tag$, etc.)
+    const dollarMatches = line.match(/\$\$|\$[a-zA-Z_][a-zA-Z0-9_]*\$/g);
+    if (dollarMatches) {
+      for (const match of dollarMatches) {
+        if (!inDollarQuote) {
+          inDollarQuote = true;
+          dollarTag = match;
+        } else if (match === dollarTag) {
+          inDollarQuote = false;
+          dollarTag = '';
+        }
+      }
+    }
+
+    current += line + '\n';
+
+    // Only split on semicolon if we're not inside a dollar-quoted string
+    if (!inDollarQuote && trimmedLine.endsWith(';')) {
+      const statement = current.trim();
+      if (statement.length > 0) {
+        statements.push(statement);
+      }
+      current = '';
+    }
+  }
+
+  // Add any remaining statement
+  if (current.trim().length > 0) {
+    statements.push(current.trim());
+  }
+
+  return statements;
+}
+
 async function runMigrations() {
   console.log('🔄 Starting automatic database migration...');
 
@@ -35,11 +89,8 @@ async function runMigrations() {
 
     console.log('🗄️  Executing database schema...');
 
-    // Split by semicolons and execute each statement
-    const statements = schema
-      .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--'));
+    // Smart SQL statement splitting that handles functions and procedures
+    const statements = splitSqlStatements(schema);
 
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i];
@@ -53,6 +104,9 @@ async function runMigrations() {
         if (error.message.includes('already exists')) {
           console.log(`   ⚠️  Skipping existing object (${i + 1}/${statements.length})`);
         } else {
+          console.error(`\n❌ Error at statement ${i + 1}/${statements.length}:`);
+          console.error(`Statement preview: ${statement.substring(0, 200)}...`);
+          console.error(`Error: ${error.message}\n`);
           throw error;
         }
       }
