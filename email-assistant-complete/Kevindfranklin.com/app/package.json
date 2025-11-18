@@ -10,13 +10,12 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "axios": "^1.7.7",
-    "date-fns": "^3.6.0",
-    "lucide-react": "^0.445.0",
-    "nodemailer": "7.0.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
+    "axios": "^1.7.7",
+    "date-fns": "^3.6.0",
+    "lucide-react": "^0.445.0",
     "recharts": "^2.12.7",
     "socket.io-client": "^4.7.5",
     "zustand": "^4.5.5"
