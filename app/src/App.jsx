@@ -14,6 +14,7 @@ const Settings = lazy(() => import('./pages/Settings'))
 const Budget = lazy(() => import('./pages/Budget'))
 const Rules = lazy(() => import('./pages/Rules'))
 const Analytics = lazy(() => import('./pages/Analytics'))
+const Templates = lazy(() => import('./pages/Templates'))
 
 function App() {
   return (
@@ -84,6 +85,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Analytics />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/templates"
+              element={
+                <PrivateRoute>
+                  <Templates />
                 </PrivateRoute>
               }
             />

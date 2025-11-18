@@ -69,38 +69,37 @@ const Dashboard = () => {
     }
 
     try {
-      const actionMap = {
-        'mark-read': { is_read: true },
-        'mark-unread': { is_read: false },
-        'star': { is_starred: true },
-        'unstar': { is_starred: false },
-        'archive': { is_archived: true },
+      // Use batch operations API for better performance
+      const batchActionMap = {
+        'mark-read': 'mark_read',
+        'mark-unread': 'mark_unread',
+        'star': 'star',
+        'unstar': 'unstar',
+        'archive': 'archive',
+        'delete': 'delete',
       }
 
       if (action === 'delete') {
         if (!confirm(`Delete ${selectedEmails.length} email(s)? This action cannot be undone.`)) {
           return
         }
-
-        await Promise.all(
-          selectedEmails.map(id => axios.delete(`/api/email/${id}`))
-        )
-        showActionMessage('success', `${selectedEmails.length} email(s) deleted`)
-      } else {
-        await Promise.all(
-          selectedEmails.map(id =>
-            axios.patch(`/api/email/${id}`, actionMap[action])
-          )
-        )
-        const actionLabels = {
-          'mark-read': 'marked as read',
-          'mark-unread': 'marked as unread',
-          'star': 'starred',
-          'unstar': 'unstarred',
-          'archive': 'archived',
-        }
-        showActionMessage('success', `${selectedEmails.length} email(s) ${actionLabels[action]}`)
       }
+
+      const response = await axios.post('/api/email/batch', {
+        email_ids: selectedEmails,
+        action: batchActionMap[action],
+      })
+
+      const actionLabels = {
+        'mark-read': 'marked as read',
+        'mark-unread': 'marked as unread',
+        'star': 'starred',
+        'unstar': 'unstarred',
+        'archive': 'archived',
+        'delete': 'deleted',
+      }
+
+      showActionMessage('success', `${response.data.affected_count} email(s) ${actionLabels[action]}`)
 
       setSelectedEmails([])
       fetchEmails()

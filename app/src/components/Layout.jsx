@@ -14,6 +14,7 @@ import {
   Zap,
   BarChart3,
   Keyboard,
+  FileStack,
 } from 'lucide-react'
 
 const Layout = ({ children }) => {
@@ -27,6 +28,7 @@ const Layout = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Mail },
     { name: 'Drafts', href: '/drafts', icon: FileText },
+    { name: 'Templates', href: '/templates', icon: FileStack },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Rules', href: '/rules', icon: Zap },
     { name: 'Budget', href: '/budget', icon: DollarSign },
