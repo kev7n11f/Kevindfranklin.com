@@ -1,0 +1,172 @@
+# EMAIL ASSISTANT - Complete Project Structure
+
+## 📦 Package Contents
+
+This zip file contains the complete Email Assistant application with 51+ source files.
+
+## 📂 Directory Structure
+
+```
+Kevindfranklin.com/
+├── api/                              # Vercel Serverless API
+│   ├── auth/
+│   │   ├── login.js                 # User login endpoint
+│   │   ├── register.js              # User registration
+│   │   ├── logout.js                # Logout endpoint
+│   │   └── me.js                    # Get current user
+│   ├── email/
+│   │   ├── list.js                  # List emails with filters
+│   │   ├── [id].js                  # Get/update/delete email
+│   │   ├── sync.js                  # Sync emails from providers
+│   │   └── connect/
+│   │       ├── gmail.js             # Gmail OAuth integration
+│   │       ├── outlook.js           # Outlook OAuth integration
+│   │       └── imap.js              # IMAP/SMTP (iCloud, Spacemail)
+│   ├── drafts/
+│   │   └── create.js                # AI draft composition
+│   ├── budget/
+│   │   ├── status.js                # Get budget status
+│   │   └── update.js                # Update budget limits
+│   ├── services/
+│   │   ├── claude.js                # Claude AI integration
+│   │   └── emailSync.js             # Email fetching service
+│   ├── middleware/
+│   │   ├── auth.js                  # JWT authentication
+│   │   └── rateLimit.js             # Rate limiting
+│   ├── utils/
+│   │   ├── encryption.js            # AES-256 encryption
+│   │   ├── jwt.js                   # JWT utilities
+│   │   ├── validators.js            # Input validation
+│   │   └── response.js              # API response helpers
+│   └── package.json
+│
+├── app/                              # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Layout.jsx           # Main layout with sidebar
+│   │   │   └── PrivateRoute.jsx     # Protected route wrapper
+│   │   ├── contexts/
+│   │   │   ├── AuthContext.jsx      # Authentication state
+│   │   │   └── AppContext.jsx       # App-wide state
+│   │   ├── pages/
+│   │   │   ├── Login.jsx            # Login page
+│   │   │   ├── Register.jsx         # Registration page
+│   │   │   ├── Dashboard.jsx        # Main email dashboard
+│   │   │   ├── EmailView.jsx        # Email detail view
+│   │   │   ├── Drafts.jsx           # Draft management
+│   │   │   ├── Settings.jsx         # Account settings
+│   │   │   └── Budget.jsx           # Budget tracking
+│   │   ├── App.jsx                  # Main app component
+│   │   ├── main.jsx                 # App entry point
+│   │   └── index.css                # Global styles
+│   ├── index.html
+│   ├── vite.config.js               # Vite configuration
+│   ├── tailwind.config.js           # Tailwind CSS config
+│   ├── postcss.config.js
+│   ├── .eslintrc.cjs
+│   └── package.json
+│
+├── db/                               # Database
+│   ├── schema/
+│   │   └── 001_initial_schema.sql   # Complete PostgreSQL schema
+│   ├── migrations/
+│   │   └── migrate.js               # Migration runner
+│   └── connection.js                # Neon DB connection
+│
+├── .env.example                      # Environment variables template
+├── .gitignore
+├── package.json                      # Root package.json
+├── vercel.json                       # Vercel deployment config
+├── EMAIL_ASSISTANT_README.md         # Full documentation
+├── DEPLOYMENT.md                     # Deployment guide
+│
+└── [Original website files]
+    ├── index.html
+    ├── bio.html
+    ├── contact.html
+    ├── styles.css
+    └── script.js
+```
+
+## 🚀 Quick Start
+
+1. **Extract the zip file:**
+   ```bash
+   unzip email-assistant-complete.zip
+   cd Kevindfranklin.com
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   # Install app dependencies
+   cd app
+   npm install
+   
+   # Install API dependencies
+   cd ../api
+   npm install
+   ```
+
+3. **Configure environment:**
+   ```bash
+   # Copy and edit .env file
+   cp .env.example .env
+   # Edit .env with your credentials
+   ```
+
+4. **Set up database:**
+   ```bash
+   # Run migrations
+   node db/migrations/migrate.js
+   ```
+
+5. **Run development server:**
+   ```bash
+   cd app
+   npm run dev
+   ```
+
+## 📚 Documentation
+
+- **EMAIL_ASSISTANT_README.md** - Complete feature documentation and API reference
+- **DEPLOYMENT.md** - Step-by-step deployment guide with OAuth setup
+- **.env.example** - All required environment variables
+
+## 🔑 Required Services
+
+You'll need accounts for:
+- **Neon PostgreSQL** - Database
+- **Vercel** - Hosting
+- **Anthropic** - Claude AI API
+- **Google Cloud** - Gmail API (optional)
+- **Azure Portal** - Outlook API (optional)
+
+## 💡 Key Features
+
+- Multi-account email management (Gmail, Outlook, iCloud, Spacemail)
+- AI-powered email analysis with Claude 4.5 Sonnet
+- Automatic priority scoring and categorization
+- AI-generated draft replies
+- Budget tracking and cost controls
+- Real-time email synchronization
+- Secure credential encryption
+
+## 📊 File Statistics
+
+- Total source files: 51+
+- Lines of code: 5,571+
+- API endpoints: 17
+- React components: 13
+- Database tables: 10
+
+## 🆘 Support
+
+For detailed setup instructions, troubleshooting, and API documentation, see:
+- EMAIL_ASSISTANT_README.md
+- DEPLOYMENT.md
+
+---
+
+Created: November 2025
+Author: Kevin D. Franklin
+Website: kevindfranklin.com
