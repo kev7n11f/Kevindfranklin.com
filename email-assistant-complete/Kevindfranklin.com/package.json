@@ -1,0 +1,17 @@
+{
+  "name": "kevindfranklin-email-assistant",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run dev --prefix app",
+    "build": "npm run build --prefix app",
+    "preview": "npm run preview --prefix app",
+    "install:app": "npm install --prefix app",
+    "install:api": "npm install --prefix api"
+  },
+  "workspaces": [
+    "app",
+    "api"
+  ]
+}

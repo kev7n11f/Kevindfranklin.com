@@ -8,12 +8,11 @@
     "@vercel/postgres": "^0.10.0",
     "bcryptjs": "^2.4.3",
     "googleapis": "^144.0.0",
-    "imap": "^0.8.17",
+    "imap": "^0.8.19",
     "jsonwebtoken": "^9.0.2",
     "mailparser": "^3.7.1",
-    "nodemailer": "^7.0.10",
-    "stripe": "^17.3.1",
-    "vite": "7.2.2"
+    "nodemailer": "^6.9.15",
+    "stripe": "^17.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.7.5"
