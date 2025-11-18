@@ -1,6 +1,7 @@
 {
   "version": 2,
   "buildCommand": "npm run build",
+  "outputDirectory": "app/dist",
   "installCommand": "npm install",
   "rewrites": [
     {
@@ -13,7 +14,7 @@
     },
     {
       "source": "/((?!api).*)",
-      "destination": "/app/dist/index.html"
+      "destination": "/index.html"
     }
   ],
   "env": {
