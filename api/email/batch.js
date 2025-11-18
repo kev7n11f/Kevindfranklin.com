@@ -2,6 +2,8 @@ import { query } from '../../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { success, error, handleCors } from '../utils/response.js';
 
+const MAX_BATCH_SIZE = 100;
+
 export default async function handler(req, res) {
   handleCors(req, res);
   if (req.method === 'OPTIONS') return;
@@ -21,8 +23,8 @@ export default async function handler(req, res) {
       return error(res, 'action is required', 400);
     }
 
-    if (email_ids.length > 100) {
-      return error(res, 'Maximum 100 emails per batch operation', 400);
+    if (email_ids.length > MAX_BATCH_SIZE) {
+      return error(res, `Maximum ${MAX_BATCH_SIZE} emails per batch operation`, 400);
     }
 
     try {

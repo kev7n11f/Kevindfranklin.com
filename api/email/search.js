@@ -2,6 +2,8 @@ import { query } from '../../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { success, error, handleCors } from '../utils/response.js';
 
+const MAX_RESULTS_PER_PAGE = 100;
+
 export default async function handler(req, res) {
   handleCors(req, res);
   if (req.method === 'OPTIONS') return;
@@ -26,7 +28,7 @@ export default async function handler(req, res) {
 
     try {
       const pageNum = parseInt(page);
-      const limitNum = Math.min(parseInt(limit), 100); // Max 100 per page
+      const limitNum = Math.min(parseInt(limit), MAX_RESULTS_PER_PAGE);
       const offset = (pageNum - 1) * limitNum;
 
       // Build WHERE clause
