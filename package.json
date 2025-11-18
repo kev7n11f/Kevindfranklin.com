@@ -10,14 +10,13 @@
     "install:app": "npm install --prefix app",
     "install:api": "npm install --prefix api",
     "migrate": "node scripts/auto-migrate.js",
-    "postinstall": "npm install --prefix api && npm install --prefix app"
+    "postinstall": "npm install --include=dev --prefix api && npm install --include=dev --prefix app"
   },
   "workspaces": [
     "app",
     "api"
   ],
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.5",
-    "vite": "^7.2.2"
+    "@neondatabase/serverless": "^0.9.5"
   }
 }
