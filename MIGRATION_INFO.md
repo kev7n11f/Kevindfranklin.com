@@ -2,7 +2,7 @@
 
 This project is configured to automatically run database migrations during deployment to Vercel.
 
-## How It Works
+How It Works
 
 When you deploy to Vercel:
 
@@ -63,6 +63,7 @@ Check Vercel build logs for error messages. Common issues:
 Migrations are safe to run multiple times. They will skip existing tables.
 
 To force a fresh migration:
+
 1. Drop all tables in Neon Console
 2. Redeploy or run `npm run migrate`
 
