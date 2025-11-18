@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
+import ConfirmModal from '../components/ConfirmModal'
 import {
-  Plus, Edit3, Trash2, Toggle, Zap, Filter, Mail,
+  Plus, Edit3, Trash2, ToggleRight, Zap, Filter, Mail,
   ArrowRight, Save, X
 } from 'lucide-react'
 import axios from 'axios'
@@ -12,6 +13,7 @@ const Rules = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingRule, setEditingRule] = useState(null)
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, ruleId: null })
 
   const [formData, setFormData] = useState({
     name: '',
@@ -144,10 +146,13 @@ const Rules = () => {
     setShowForm(true)
   }
 
-  const handleDelete = async (ruleId) => {
-    if (!confirm('Delete this rule? This action cannot be undone.')) {
-      return
-    }
+  const handleDelete = (ruleId) => {
+    setConfirmDelete({ isOpen: true, ruleId })
+  }
+
+  const confirmDeleteRule = async () => {
+    const { ruleId } = confirmDelete
+    setConfirmDelete({ isOpen: false, ruleId: null })
 
     try {
       await axios.delete(`/api/rules/${ruleId}`)
@@ -157,6 +162,10 @@ const Rules = () => {
       console.error('Failed to delete rule:', error)
       showMessage('error', 'Failed to delete rule')
     }
+  }
+
+  const cancelDelete = () => {
+    setConfirmDelete({ isOpen: false, ruleId: null })
   }
 
   const handleToggle = async (rule) => {
@@ -185,6 +194,16 @@ const Rules = () => {
 
   return (
     <Layout>
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Delete Rule"
+        message="Delete this rule? This action cannot be undone."
+        onConfirm={confirmDeleteRule}
+        onCancel={cancelDelete}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmStyle="danger"
+      />
       <div className="p-6">
         <div className="mb-6">
           <div className="flex items-center justify-between">
@@ -473,7 +492,7 @@ const Rules = () => {
                         className="p-2 hover:bg-gray-200 rounded-lg"
                         title={rule.enabled ? 'Disable' : 'Enable'}
                       >
-                        <Toggle
+                        <ToggleRight
                           size={18}
                           className={rule.enabled ? 'text-green-600' : 'text-gray-400'}
                         />
