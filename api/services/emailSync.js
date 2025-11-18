@@ -2,10 +2,11 @@ import { google } from 'googleapis';
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 import { query } from '../../db/connection.js';
-import { decrypt } from '../utils/encryption.js';
+import { decrypt, encrypt } from '../utils/encryption.js';
 import { analyzeEmail } from './claude.js';
 
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0';
+const MICROSOFT_TOKEN_ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
 /**
  * Sync emails for a specific account
@@ -173,16 +174,86 @@ function parseGmailMessage(message, account) {
 }
 
 /**
+ * Refresh Outlook OAuth token
+ */
+async function refreshOutlookToken(account) {
+  if (!account.refresh_token) {
+    throw new Error('No refresh token available for Outlook account');
+  }
+
+  const refreshToken = decrypt(account.refresh_token);
+  const clientId = process.env.MICROSOFT_CLIENT_ID;
+  const clientSecret = process.env.MICROSOFT_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Microsoft OAuth credentials not configured');
+  }
+
+  try {
+    const response = await fetch(MICROSOFT_TOKEN_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token',
+        scope: 'https://graph.microsoft.com/Mail.Read https://graph.microsoft.com/Mail.Send offline_access',
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Token refresh failed: ${error.error_description || response.statusText}`);
+    }
+
+    const tokens = await response.json();
+
+    // Calculate new expiration time
+    const expiresAt = new Date(Date.now() + (tokens.expires_in * 1000));
+
+    // Update account with new tokens
+    await query(
+      `UPDATE email_accounts
+       SET access_token = $1,
+           refresh_token = $2,
+           token_expires_at = $3,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $4`,
+      [
+        encrypt(tokens.access_token),
+        tokens.refresh_token ? encrypt(tokens.refresh_token) : account.refresh_token,
+        expiresAt,
+        account.id,
+      ]
+    );
+
+    console.log(`Successfully refreshed Outlook token for ${account.email_address}`);
+
+    return {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || refreshToken,
+      expires_at: expiresAt,
+    };
+  } catch (error) {
+    console.error('Error refreshing Outlook token:', error);
+    throw new Error(`Failed to refresh Outlook token: ${error.message}`);
+  }
+}
+
+/**
  * Sync Outlook emails
  */
 async function syncOutlook(account) {
-  const accessToken = decrypt(account.access_token);
+  let accessToken = decrypt(account.access_token);
 
   // Check if token is expired and refresh if needed
   if (account.token_expires_at && new Date(account.token_expires_at) < new Date()) {
-    // Token expired, need to refresh
-    // TODO: Implement token refresh
-    console.warn('Outlook token expired, refresh needed');
+    console.log(`Outlook token expired for ${account.email_address}, refreshing...`);
+    const refreshedTokens = await refreshOutlookToken(account);
+    accessToken = refreshedTokens.access_token;
   }
 
   const syncFrom = account.sync_from_date || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);

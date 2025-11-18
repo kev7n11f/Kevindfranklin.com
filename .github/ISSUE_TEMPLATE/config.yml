@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/kev7n11f/Kevindfranklin.com/blob/main/EMAIL_ASSISTANT_COMPLETE_README.md
+    about: Read the complete documentation
+  - name: 🚀 Quick Start Guide
+    url: https://github.com/kev7n11f/Kevindfranklin.com/blob/main/QUICK_START.md
+    about: Get started in 10 minutes
+  - name: 🤝 Contributing Guidelines
+    url: https://github.com/kev7n11f/Kevindfranklin.com/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute to the project
