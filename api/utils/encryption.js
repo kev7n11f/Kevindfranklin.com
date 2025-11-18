@@ -84,7 +84,8 @@ export function decrypt(encryptedData) {
  * @returns {Promise<string>} - Hashed password
  */
 export async function hashPassword(password) {
-  const bcrypt = await import('bcryptjs');
+  const bcryptModule = await import('bcryptjs');
+  const bcrypt = bcryptModule.default || bcryptModule;
   const salt = await bcrypt.genSalt(10);
   return bcrypt.hash(password, salt);
 }
@@ -96,7 +97,8 @@ export async function hashPassword(password) {
  * @returns {Promise<boolean>} - True if match
  */
 export async function comparePassword(password, hash) {
-  const bcrypt = await import('bcryptjs');
+  const bcryptModule = await import('bcryptjs');
+  const bcrypt = bcryptModule.default || bcryptModule;
   return bcrypt.compare(password, hash);
 }
 
