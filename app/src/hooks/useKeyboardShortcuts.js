@@ -100,7 +100,12 @@ export const useKeyboardShortcuts = () => {
             if (lastKey !== 'g') {
               event.preventDefault()
               // Trigger sync
-              const syncButton = document.querySelector('button:has(svg[class*="animate-spin"]), button:has-text("Sync")')
+              let syncButton = document.querySelector('button:has(svg[class*="animate-spin"])');
+              if (!syncButton) {
+                syncButton = Array.from(document.querySelectorAll('button')).find(
+                  btn => btn.textContent && btn.textContent.trim() === "Sync"
+                );
+              }
               if (syncButton && !syncButton.disabled) {
                 syncButton.click()
               }
