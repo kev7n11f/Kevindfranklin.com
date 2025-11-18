@@ -95,7 +95,7 @@ const Templates = () => {
       const template = response.data.template
 
       // Navigate to drafts with the template data
-      window.location.href = `/drafts?template=${id}&subject=${encodeURIComponent(template.subject)}&body=${encodeURIComponent(template.body)}`
+      window.location.href = `/drafts?template=${id}&subject=${encodeURIComponent(template.subject || '')}&body=${encodeURIComponent(template.body)}`
     } catch (error) {
       console.error('Failed to use template:', error)
       showMessage('error', 'Failed to use template')
