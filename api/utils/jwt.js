@@ -1,10 +1,15 @@
 import jwt from 'jsonwebtoken';
 
 const getJwtSecret = () => {
-  const secret = process.env.JWT_SECRET;
+  // Support both JWT_SECRET and JWT_Secret for compatibility
+  const secret = process.env.JWT_SECRET || process.env.JWT_Secret;
+
   if (!secret) {
+    console.error('JWT_SECRET is undefined');
+    console.error('Available env vars:', Object.keys(process.env).filter(k => !k.includes('PATH')));
     throw new Error('JWT_SECRET environment variable is required');
   }
+
   return secret;
 };
 
