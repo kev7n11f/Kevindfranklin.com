@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   if (!user) return;
 
   try {
-    const { email_id, tone, instructions } = req.body;
+    const { email_id, tone, instructions, skip_ai, draft_content } = req.body;
 
     if (!email_id) {
       return badRequest(res, 'email_id is required');
@@ -33,38 +33,37 @@ export default async function handler(req, res) {
 
     const email = emails[0];
 
-    // Generate draft using Claude
-    const draft = await generateDraftReply(user.id, email, { tone, instructions });
+    let draftData;
 
-    // Parse recipient email
-    const toAddresses = [{ email: email.from_address, name: email.from_name }];
+    if (skip_ai && draft_content) {
+      // Manual draft - user provided content
+      draftData = {
+        draft_content: draft_content,
+        confidence_score: null,
+        context: null,
+      };
+    } else {
+      // AI-generated draft
+      draftData = await generateDraftReply(user.id, email, { tone, instructions });
+    }
 
     // Store draft
     const result = await query(
       `INSERT INTO email_drafts
-       (user_id, email_account_id, original_email_id, to_addresses, subject, body_text, body_html,
-        ai_generated, ai_confidence_score, ai_prompt, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       (user_id, email_id, draft_content, confidence_score, context, status)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
       [
         user.id,
-        email.email_account_id,
         email_id,
-        JSON.stringify(toAddresses),
-        draft.subject,
-        draft.body_text,
-        draft.body_html,
-        true,
-        draft.confidence_score,
-        instructions || null,
-        'draft',
+        draftData.draft_content,
+        draftData.confidence_score,
+        draftData.context || null,
+        'pending',
       ]
     );
 
-    return success(res, {
-      draft: result[0],
-      notes: draft.notes,
-    }, 'Draft created successfully');
+    return success(res, result[0], 'Draft created successfully');
 
   } catch (err) {
     console.error('Create draft error:', err);
