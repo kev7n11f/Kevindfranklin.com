@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useApp } from '../contexts/AppContext'
+import Notifications from './Notifications'
 import {
   Mail,
   FileText,
@@ -9,6 +10,8 @@ import {
   LogOut,
   RefreshCw,
   AlertCircle,
+  Zap,
+  BarChart3,
 } from 'lucide-react'
 
 const Layout = ({ children }) => {
@@ -19,8 +22,10 @@ const Layout = ({ children }) => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Mail },
     { name: 'Drafts', href: '/drafts', icon: FileText },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { name: 'Rules', href: '/rules', icon: Zap },
     { name: 'Budget', href: '/budget', icon: DollarSign },
+    { name: 'Settings', href: '/settings', icon: Settings },
   ]
 
   const isActive = (path) => location.pathname === path
@@ -42,9 +47,12 @@ const Layout = ({ children }) => {
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-            Email Assistant
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+              Email Assistant
+            </h1>
+            <Notifications />
+          </div>
           <p className="text-sm text-gray-600 mt-1">{user?.email}</p>
         </div>
 

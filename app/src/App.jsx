@@ -8,6 +8,8 @@ import EmailView from './pages/EmailView'
 import Drafts from './pages/Drafts'
 import Settings from './pages/Settings'
 import Budget from './pages/Budget'
+import Rules from './pages/Rules'
+import Analytics from './pages/Analytics'
 import PrivateRoute from './components/PrivateRoute'
 
 function App() {
@@ -58,6 +60,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <Budget />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/rules"
+              element={
+                <PrivateRoute>
+                  <Rules />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <PrivateRoute>
+                  <Analytics />
                 </PrivateRoute>
               }
             />
