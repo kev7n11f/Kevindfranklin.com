@@ -17,6 +17,7 @@
     "api"
   ],
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.5"
+    "@neondatabase/serverless": "^0.9.5",
+    "vite": "^7.2.2"
   }
 }

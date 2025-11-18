@@ -148,11 +148,9 @@ Value: cname.vercel-dns.com
 Now that you have your production URL, update redirect URIs:
 
 #### Google Console
-
 - Add: `https://app.kevindfranklin.com/api/email/connect/gmail`
 
 #### Azure Portal
-
 - Add: `https://app.kevindfranklin.com/api/email/connect/outlook`
 
 ### Step 9: Test the Application
@@ -319,7 +317,6 @@ vercel --prod
 ### Issue: AI not analyzing emails
 
 **Solution**:
-
 - Verify `ANTHROPIC_API_KEY`
 - Check budget hasn't been exceeded
 - Review `api_usage_logs` table
@@ -327,7 +324,6 @@ vercel --prod
 ### Issue: Email sync not working
 
 **Solution**:
-
 - Check email account credentials
 - Verify OAuth tokens haven't expired
 - Check `email_accounts` table for error messages
@@ -335,8 +331,7 @@ vercel --prod
 ## Support
 
 For issues or questions:
-
-- Email: <info@kevindfranklin.com>
+- Email: info@kevindfranklin.com
 - Review logs in Vercel dashboard
 - Check database for error messages
 
