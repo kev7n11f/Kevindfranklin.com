@@ -1,14 +1,12 @@
 import jwt from 'jsonwebtoken';
 
 const getJwtSecret = () => {
-  const secret = process.env.JWT_SECRET;
+  // Support both JWT_SECRET and JWT_Secret for compatibility
+  const secret = process.env.JWT_SECRET || process.env.JWT_Secret;
 
-  // Debug logging for Vercel
   if (!secret) {
     console.error('JWT_SECRET is undefined');
     console.error('Available env vars:', Object.keys(process.env).filter(k => !k.includes('PATH')));
-    console.error('NODE_ENV:', process.env.NODE_ENV);
-    console.error('VERCEL:', process.env.VERCEL);
     throw new Error('JWT_SECRET environment variable is required');
   }
 
