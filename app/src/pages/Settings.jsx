@@ -30,6 +30,22 @@ const Settings = () => {
   useEffect(() => {
     loadAccounts()
     loadUserProfile()
+    
+    // Check for OAuth callback messages
+    const params = new URLSearchParams(window.location.search)
+    const success = params.get('success')
+    const error = params.get('error')
+    
+    if (success === 'gmail_connected') {
+      showMessage('success', 'Gmail account connected successfully!')
+      window.history.replaceState({}, '', '/settings')
+    } else if (success === 'outlook_connected') {
+      showMessage('success', 'Outlook account connected successfully!')
+      window.history.replaceState({}, '', '/settings')
+    } else if (error) {
+      showMessage('error', decodeURIComponent(error))
+      window.history.replaceState({}, '', '/settings')
+    }
   }, [])
 
   const loadAccounts = async () => {
@@ -68,14 +84,26 @@ const Settings = () => {
     setTimeout(() => setMessage({ type: '', text: '' }), 5000)
   }
 
-  const handleConnectAccount = (provider) => {
-    if (provider === 'gmail') {
-      window.location.href = '/api/email/connect/gmail'
-    } else if (provider === 'outlook') {
-      window.location.href = '/api/email/connect/outlook'
-    } else {
-      // For IMAP providers (iCloud, Spacemail), show modal
-      setActiveTab('add-imap')
+  const handleConnectAccount = async (provider) => {
+    try {
+      if (provider === 'gmail') {
+        // Get authorization URL from API
+        const response = await axios.get('/api/email/connect/gmail')
+        if (response.data.data.authUrl) {
+          window.location.href = response.data.data.authUrl
+        }
+      } else if (provider === 'outlook') {
+        const response = await axios.get('/api/email/connect/outlook')
+        if (response.data.data.authUrl) {
+          window.location.href = response.data.data.authUrl
+        }
+      } else {
+        // For IMAP providers (iCloud, Spacemail), show modal
+        setActiveTab('add-imap')
+      }
+    } catch (error) {
+      console.error('Failed to connect account:', error)
+      showMessage('error', `Failed to connect ${provider} account`)
     }
   }
 

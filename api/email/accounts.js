@@ -22,10 +22,11 @@ export default async function handler(req, res) {
       `SELECT
         id,
         provider,
-        email,
+        email_address as email,
         is_active,
-        last_sync,
+        last_sync_at as last_sync,
         sync_frequency_minutes,
+        connection_status,
         created_at
        FROM email_accounts
        WHERE user_id = $1
