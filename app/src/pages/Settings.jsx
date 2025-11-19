@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Layout from '../components/Layout'
+import ConfirmModal from '../components/ConfirmModal'
 import {
   Mail, Plus, Trash2, RefreshCw, Save, User, Bell,
   Shield, Zap, Settings as SettingsIcon
@@ -12,6 +13,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
+  const [confirmDisconnect, setConfirmDisconnect] = useState({ isOpen: false, accountId: null })
 
   // User settings state
   const [userSettings, setUserSettings] = useState({
@@ -77,10 +79,13 @@ const Settings = () => {
     }
   }
 
-  const handleDisconnectAccount = async (accountId) => {
-    if (!confirm('Are you sure you want to disconnect this account? Your email data will be preserved.')) {
-      return
-    }
+  const handleDisconnectAccount = (accountId) => {
+    setConfirmDisconnect({ isOpen: true, accountId })
+  }
+
+  const confirmDisconnectAccount = async () => {
+    const { accountId } = confirmDisconnect
+    setConfirmDisconnect({ isOpen: false, accountId: null })
 
     try {
       await axios.delete(`/api/email/accounts/${accountId}`)
@@ -90,6 +95,10 @@ const Settings = () => {
       console.error('Failed to disconnect account:', error)
       showMessage('error', 'Failed to disconnect account')
     }
+  }
+
+  const cancelDisconnect = () => {
+    setConfirmDisconnect({ isOpen: false, accountId: null })
   }
 
   const handleSyncAccount = async (accountId) => {
@@ -152,6 +161,16 @@ const Settings = () => {
 
   return (
     <Layout>
+      <ConfirmModal
+        isOpen={confirmDisconnect.isOpen}
+        title="Disconnect Account"
+        message="Are you sure you want to disconnect this account? Your email data will be preserved."
+        onConfirm={confirmDisconnectAccount}
+        onCancel={cancelDisconnect}
+        confirmText="Disconnect"
+        cancelText="Cancel"
+        confirmStyle="danger"
+      />
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
 

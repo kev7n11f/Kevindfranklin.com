@@ -1,0 +1,379 @@
+# Email Assistant - Claude Code Project Configuration
+
+## Project Overview
+
+This is a full-stack AI-powered email management application built with React, Node.js, and Claude AI (Anthropic).
+
+**Tech Stack:**
+- Frontend: React 18 + Vite + Tailwind CSS
+- Backend: Vercel Serverless Functions
+- Database: Neon PostgreSQL (serverless)
+- AI: Claude 4.5 Sonnet (Anthropic)
+- Authentication: JWT + bcrypt
+- Email: OAuth 2.0 (Gmail, Outlook) + IMAP/SMTP
+
+## Project Structure
+
+```
+Kevindfranklin.com/
+├── app/                    # Frontend React application
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Page components (Dashboard, Analytics, etc.)
+│   │   ├── contexts/       # React Context (Auth, App state)
+│   │   ├── hooks/          # Custom hooks (useKeyboardShortcuts, etc.)
+│   │   └── main.jsx        # App entry point
+│   └── package.json
+├── api/                    # Backend serverless functions
+│   ├── auth/              # Authentication endpoints
+│   ├── email/             # Email management endpoints
+│   ├── drafts/            # Draft management
+│   ├── rules/             # Automation rules
+│   ├── templates/         # Email templates
+│   ├── analytics/         # Analytics endpoints
+│   ├── notifications/     # Notifications
+│   ├── budget/            # Budget tracking
+│   ├── middleware/        # Auth & rate limiting
+│   ├── services/          # Business logic (AI, email sync)
+│   └── utils/             # Helpers (encryption, response)
+├── db/                    # Database schemas and migrations
+│   └── schema/            # SQL migration files
+└── docs/                  # Documentation (README, API Reference, etc.)
+```
+
+## Code Conventions
+
+### Frontend (React)
+
+**Component Style:**
+- Use functional components with hooks (no class components)
+- Use arrow functions for component definitions
+- Keep components under 300 lines
+- Extract complex logic into custom hooks
+- Use Tailwind CSS for styling (no CSS modules)
+
+**Naming:**
+- Components: PascalCase (e.g., `EmailList.jsx`)
+- Functions: camelCase (e.g., `handleSubmit`)
+- Constants: UPPER_SNAKE_CASE (e.g., `API_BASE_URL`)
+- Files: Match component name exactly
+
+**State Management:**
+- Use React Context for global state (AuthContext, AppContext)
+- Use local state (useState) for component-specific data
+- Use custom hooks for reusable logic
+
+**Example Component:**
+```javascript
+import { useState, useEffect } from 'react'
+import Layout from '../components/Layout'
+import axios from 'axios'
+
+const MyPage = () => {
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const response = await axios.get('/api/endpoint')
+      setData(response.data)
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Layout>
+      {/* Component JSX */}
+    </Layout>
+  )
+}
+
+export default MyPage
+```
+
+### Backend (API)
+
+**Endpoint Structure:**
+- Each endpoint is a file in the appropriate directory
+- Use dynamic routes with `[id].js` syntax
+- Export a default handler function
+- Always use CORS and authentication
+
+**Naming:**
+- API files: kebab-case (e.g., `batch-operations.js`)
+- Functions: camelCase (e.g., `refreshToken`)
+- Database tables: snake_case (e.g., `email_accounts`)
+
+**Example Endpoint:**
+```javascript
+import { query } from '../../db/connection.js'
+import { authenticate } from '../middleware/auth.js'
+import { success, error, handleCors } from '../utils/response.js'
+
+export default async function handler(req, res) {
+  handleCors(req, res)
+  if (req.method === 'OPTIONS') return
+
+  const user = await authenticate(req, res)
+  if (!user) return
+
+  if (req.method === 'GET') {
+    try {
+      const result = await query(
+        'SELECT * FROM table WHERE user_id = $1',
+        [user.id]
+      )
+      return success(res, result.rows)
+    } catch (err) {
+      console.error('Error:', err)
+      return error(res, 'Failed to fetch data')
+    }
+  }
+
+  return error(res, 'Method not allowed', 405)
+}
+```
+
+### Database
+
+**Query Style:**
+- Always use parameterized queries (prevent SQL injection)
+- Use `$1, $2, $3` placeholders
+- Put queries in separate lines for readability
+- Use meaningful parameter names
+
+**Example:**
+```javascript
+const result = await query(
+  `SELECT e.*
+   FROM emails e
+   WHERE e.user_id = $1
+     AND e.is_read = $2
+   ORDER BY e.received_at DESC
+   LIMIT $3`,
+  [userId, isRead, limit]
+)
+```
+
+## Security Guidelines
+
+**Authentication:**
+- All protected endpoints must call `authenticate(req, res)`
+- Check user ownership before operations
+- Never expose sensitive data in error messages
+
+**Data Protection:**
+- Use `encrypt()` for storing credentials (AES-256-GCM)
+- Use `hashPassword()` for passwords (bcrypt)
+- Validate all user inputs
+- Sanitize error messages
+
+**SQL Safety:**
+- ALWAYS use parameterized queries
+- Never interpolate user input directly
+- Validate data types before queries
+
+## API Response Format
+
+**Success:**
+```javascript
+return success(res, {
+  data: {...},
+  message: 'Optional message'
+}, 200) // status code optional
+```
+
+**Error:**
+```javascript
+return error(res, 'Error message', 400) // status code optional
+```
+
+## Feature Implementation Checklist
+
+When adding a new feature:
+
+1. **Backend:**
+   - [ ] Create API endpoint(s) in appropriate directory
+   - [ ] Add authentication and authorization
+   - [ ] Validate input data
+   - [ ] Use parameterized queries
+   - [ ] Add error handling
+   - [ ] Test endpoint manually
+
+2. **Database:**
+   - [ ] Create migration file if needed (`db/schema/00X_name.sql`)
+   - [ ] Add indexes for performance
+   - [ ] Add foreign key constraints
+   - [ ] Test migration locally
+
+3. **Frontend:**
+   - [ ] Create page component if needed
+   - [ ] Add route to `App.jsx`
+   - [ ] Add navigation link to `Layout.jsx`
+   - [ ] Add keyboard shortcut to `useKeyboardShortcuts.js`
+   - [ ] Implement loading states
+   - [ ] Add error handling
+
+4. **Testing:**
+   - [ ] Test happy path
+   - [ ] Test error cases
+   - [ ] Test with no data
+   - [ ] Test with large datasets
+   - [ ] Test authentication/authorization
+
+5. **Documentation:**
+   - [ ] Update API_REFERENCE.md
+   - [ ] Add inline code comments for complex logic
+   - [ ] Update CHANGELOG.md
+
+## Environment Variables
+
+Required in `.env`:
+
+```bash
+# Database
+DATABASE_URL=postgresql://...
+
+# Authentication
+JWT_SECRET=your-secret-key
+ENCRYPTION_KEY=your-encryption-key
+
+# AI
+ANTHROPIC_API_KEY=sk-ant-...
+
+# OAuth (optional)
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+MICROSOFT_CLIENT_ID=...
+MICROSOFT_CLIENT_SECRET=...
+
+# Budget
+DEFAULT_MONTHLY_BUDGET_CENTS=1000
+```
+
+## Common Tasks
+
+### Add a new page:
+1. Create `app/src/pages/NewPage.jsx`
+2. Add lazy import in `app/src/App.jsx`
+3. Add route in App.jsx `<Routes>`
+4. Add navigation item in `app/src/components/Layout.jsx`
+5. Add keyboard shortcut in `app/src/hooks/useKeyboardShortcuts.js`
+
+### Add a new API endpoint:
+1. Create `api/feature/endpoint.js`
+2. Follow the endpoint structure pattern
+3. Add authentication
+4. Use parameterized queries
+5. Test with curl or Postman
+
+### Add a database table:
+1. Create `db/schema/00X_description.sql`
+2. Write CREATE TABLE statement
+3. Add indexes
+4. Add foreign keys
+5. Run migration
+
+## Performance Best Practices
+
+**Frontend:**
+- Use lazy loading for routes (already implemented)
+- Implement loading skeletons
+- Debounce search inputs
+- Use pagination for large lists
+- Memoize expensive computations
+
+**Backend:**
+- Use batch operations for bulk updates
+- Add database indexes on frequently queried columns
+- Use parallel queries where possible
+- Limit query results (MAX 100-1000)
+- Cache frequently accessed data
+
+**Database:**
+- Add indexes on: user_id, foreign keys, frequently filtered columns
+- Use `LIMIT` on all queries
+- Use `COUNT(*)` only when necessary
+- Optimize JOIN queries
+
+## Debugging Tips
+
+**Frontend:**
+- Check browser console for errors
+- Use React DevTools for component state
+- Check Network tab for API responses
+- Verify authentication token in localStorage
+
+**Backend:**
+- Check Vercel function logs
+- Add `console.error()` for debugging
+- Test queries directly in database
+- Verify environment variables are set
+
+**Database:**
+- Use `EXPLAIN ANALYZE` for slow queries
+- Check index usage
+- Verify foreign key constraints
+- Check for table locks
+
+## Key Features
+
+1. **Email Management:** Multi-provider support (Gmail, Outlook, IMAP)
+2. **AI Analysis:** Claude 4.5 Sonnet for email analysis
+3. **Automation:** Rules engine for email processing
+4. **Analytics:** Comprehensive email statistics
+5. **Templates:** Reusable email templates with variables
+6. **Budget:** AI cost tracking and limits
+7. **Batch Operations:** Bulk email actions (100x faster)
+8. **Search:** Advanced search with filters
+9. **Export:** CSV/JSON data export
+10. **Keyboard Shortcuts:** Vim-style navigation
+
+## Keyboard Shortcuts
+
+- `g+d` → Dashboard
+- `g+r` → Drafts
+- `g+t` → Templates
+- `g+a` → Analytics
+- `g+u` → Rules
+- `g+b` → Budget
+- `g+s` → Settings
+- `/` → Search
+- `r` → Refresh
+- `Esc` → Cancel/blur
+- `?` → Help
+
+## Resources
+
+- **Main README:** EMAIL_ASSISTANT_COMPLETE_README.md
+- **Quick Start:** QUICK_START.md
+- **API Docs:** API_REFERENCE.md
+- **Contributing:** CONTRIBUTING.md
+- **Security:** SECURITY.md
+- **Testing:** TESTING.md
+- **Changelog:** CHANGELOG.md
+
+## Notes
+
+- Always commit with conventional commit messages (feat, fix, docs, etc.)
+- Test OAuth flows in production (localhost doesn't support OAuth callbacks)
+- Database migrations run automatically on Vercel deploy
+- Keep API responses under 1MB
+- Use `encrypt()` for sensitive data, `hashPassword()` for passwords
+- Maximum 100 emails per batch operation
+- All dates should be ISO 8601 format
+- Use UTC for all timestamps
+
+---
+
+**Project Maintainer:** Kevin D. Franklin
+**License:** MIT
+**Last Updated:** 2024-11-18
