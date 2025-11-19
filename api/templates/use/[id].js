@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       const template = result.rows[0];
 
       // Replace variables in subject and body
-      let subject = template.subject;
+      let subject = template.subject || '';
       let body = template.body;
 
       // Simple variable replacement ({{variable_name}})

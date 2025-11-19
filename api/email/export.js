@@ -2,6 +2,8 @@ import { query } from '../../db/connection.js';
 import { authenticate } from '../middleware/auth.js';
 import { error, handleCors } from '../utils/response.js';
 
+const MAX_EXPORT_LIMIT = 10000;
+
 export default async function handler(req, res) {
   handleCors(req, res);
   if (req.method === 'OPTIONS') return;
@@ -57,7 +59,7 @@ export default async function handler(req, res) {
       }
 
       const whereClause = conditions.join(' AND ');
-      const limitNum = Math.min(parseInt(limit), 10000); // Max 10k emails
+      const limitNum = Math.min(parseInt(limit), MAX_EXPORT_LIMIT);
 
       // Get emails
       const result = await query(
