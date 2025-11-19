@@ -70,11 +70,71 @@ export async function syncEmailAccount(accountId) {
 }
 
 /**
+ * Refresh Gmail OAuth token
+ */
+async function refreshGmailToken(account) {
+  if (!account.refresh_token) {
+    throw new Error('No refresh token available for Gmail account');
+  }
+
+  const refreshToken = decrypt(account.refresh_token);
+
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
+
+  oauth2Client.setCredentials({
+    refresh_token: refreshToken,
+  });
+
+  try {
+    // Google library automatically refreshes the token
+    const { credentials } = await oauth2Client.refreshAccessToken();
+
+    // Calculate new expiration time
+    const expiresAt = new Date(credentials.expiry_date);
+
+    // Update account with new tokens
+    await query(
+      `UPDATE email_accounts
+       SET access_token = $1,
+           token_expires_at = $2,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3`,
+      [
+        encrypt(credentials.access_token),
+        expiresAt,
+        account.id,
+      ]
+    );
+
+    console.log(`Successfully refreshed Gmail token for ${account.email_address}`);
+
+    return {
+      access_token: credentials.access_token,
+      expires_at: expiresAt,
+    };
+  } catch (error) {
+    console.error('Error refreshing Gmail token:', error);
+    throw new Error(`Failed to refresh Gmail token: ${error.message}`);
+  }
+}
+
+/**
  * Sync Gmail emails
  */
 async function syncGmail(account) {
-  const accessToken = decrypt(account.access_token);
+  let accessToken = decrypt(account.access_token);
   const refreshToken = account.refresh_token ? decrypt(account.refresh_token) : null;
+
+  // Check if token is expired and refresh if needed
+  if (account.token_expires_at && new Date(account.token_expires_at) < new Date()) {
+    console.log(`Gmail token expired for ${account.email_address}, refreshing...`);
+    const refreshedTokens = await refreshGmailToken(account);
+    accessToken = refreshedTokens.access_token;
+  }
 
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
@@ -85,6 +145,21 @@ async function syncGmail(account) {
   oauth2Client.setCredentials({
     access_token: accessToken,
     refresh_token: refreshToken,
+  });
+
+  // Set up automatic token refresh on API calls
+  oauth2Client.on('tokens', async (tokens) => {
+    if (tokens.access_token) {
+      const expiresAt = tokens.expiry_date ? new Date(tokens.expiry_date) : new Date(Date.now() + 3600000);
+      await query(
+        `UPDATE email_accounts
+         SET access_token = $1,
+             token_expires_at = $2
+         WHERE id = $3`,
+        [encrypt(tokens.access_token), expiresAt, account.id]
+      );
+      console.log(`Auto-refreshed Gmail token for ${account.email_address}`);
+    }
   });
 
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client });

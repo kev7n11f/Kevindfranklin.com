@@ -56,6 +56,9 @@ export const useKeyboardShortcuts = () => {
           case 'r':
             navigate('/drafts')
             break
+          case 't':
+            navigate('/templates')
+            break
           case 'a':
             navigate('/analytics')
             break
