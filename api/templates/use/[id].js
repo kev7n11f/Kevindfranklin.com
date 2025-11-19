@@ -43,7 +43,9 @@ export default async function handler(req, res) {
       // Simple variable replacement ({{variable_name}})
       Object.keys(variables).forEach(key => {
         const regex = new RegExp(`{{${key}}}`, 'g');
-        subject = subject.replace(regex, variables[key]);
+        if (subject) {
+          subject = subject.replace(regex, variables[key]);
+        }
         body = body.replace(regex, variables[key]);
       });
 
