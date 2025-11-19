@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useApp } from '../contexts/AppContext'
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import Notifications from './Notifications'
+import ShortcutsHelpModal from './ShortcutsHelpModal'
 import {
   Mail,
   FileText,
@@ -13,8 +14,6 @@ import {
   AlertCircle,
   Zap,
   BarChart3,
-  Keyboard,
-  FileStack,
 } from 'lucide-react'
 
 const Layout = ({ children }) => {
@@ -23,7 +22,7 @@ const Layout = ({ children }) => {
   const { budget, syncing, syncEmails } = useApp()
 
   // Enable keyboard shortcuts
-  useKeyboardShortcuts()
+  const { showShortcutsModal, setShowShortcutsModal } = useKeyboardShortcuts()
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Mail },
@@ -123,6 +122,12 @@ const Layout = ({ children }) => {
       <div className="flex-1 overflow-auto">
         {children}
       </div>
+
+      {/* Shortcuts Help Modal */}
+      <ShortcutsHelpModal
+        isOpen={showShortcutsModal}
+        onClose={() => setShowShortcutsModal(false)}
+      />
     </div>
   )
 }
