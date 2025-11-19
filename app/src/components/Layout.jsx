@@ -7,6 +7,7 @@ import ShortcutsHelpModal from './ShortcutsHelpModal'
 import {
   Mail,
   FileText,
+  FileStack,
   Settings,
   DollarSign,
   LogOut,
