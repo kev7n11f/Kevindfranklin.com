@@ -5,6 +5,10 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/.well-known/microsoft-identity-association.json",
+      "destination": "/.well-known/microsoft-identity-association.json"
+    },
+    {
       "source": "/(bio|contact|privacy|terms).html",
       "destination": "/$1.html"
     },
@@ -13,8 +17,23 @@
       "destination": "/index.html"
     },
     {
-      "source": "/((?!api).*)",
+      "source": "/((?!api|\\.well-known).*)",
       "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/.well-known/microsoft-identity-association.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
     }
   ],
   "env": {
