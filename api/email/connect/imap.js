@@ -7,17 +7,35 @@ import Imap from 'imap';
 
 // Provider-specific IMAP/SMTP settings
 const PROVIDER_SETTINGS = {
+  gmail: {
+    imap_host: 'imap.gmail.com',
+    imap_port: 993,
+    smtp_host: 'smtp.gmail.com',
+    smtp_port: 587,
+  },
+  outlook: {
+    imap_host: 'outlook.office365.com',
+    imap_port: 993,
+    smtp_host: 'smtp.office365.com',
+    smtp_port: 587,
+  },
   icloud: {
     imap_host: 'imap.mail.me.com',
     imap_port: 993,
     smtp_host: 'smtp.mail.me.com',
     smtp_port: 587,
   },
-  spacemail: {
-    // Spacemail uses standard mail server discovery
-    // Will be configured based on domain
+  yahoo: {
+    imap_host: 'imap.mail.yahoo.com',
     imap_port: 993,
+    smtp_host: 'smtp.mail.yahoo.com',
     smtp_port: 587,
+  },
+  spacemail: {
+    imap_host: 'mail.spacemail.com',
+    imap_port: 993,
+    smtp_host: 'mail.spacemail.com',
+    smtp_port: 465,
   },
 };
 
@@ -27,17 +45,29 @@ const PROVIDER_SETTINGS = {
 function testImapConnection(config) {
   return new Promise((resolve, reject) => {
     const imap = new Imap(config);
+    
+    let timeout = setTimeout(() => {
+      imap.end();
+      reject(new Error('Connection timeout after 15 seconds'));
+    }, 15000);
 
     imap.once('ready', () => {
+      clearTimeout(timeout);
       imap.end();
       resolve(true);
     });
 
     imap.once('error', (err) => {
+      clearTimeout(timeout);
       reject(err);
     });
 
-    imap.connect();
+    try {
+      imap.connect();
+    } catch (err) {
+      clearTimeout(timeout);
+      reject(err);
+    }
   });
 }
 
@@ -77,15 +107,18 @@ export default async function handler(req, res) {
     // Get provider settings or use custom settings
     let settings;
 
-    if (provider === 'icloud') {
-      settings = PROVIDER_SETTINGS.icloud;
-    } else if (provider === 'spacemail') {
-      // For Spacemail, try auto-discovery or use custom settings
-      const domain = email_address.split('@')[1];
+    if (PROVIDER_SETTINGS[provider]) {
+      // Use predefined settings for known providers
+      settings = PROVIDER_SETTINGS[provider];
+    } else if (provider === 'custom') {
+      // Custom provider - use provided settings
+      if (!imap_host || !smtp_host) {
+        return badRequest(res, 'IMAP and SMTP host are required for custom provider');
+      }
       settings = {
-        imap_host: imap_host || `imap.${domain}`,
+        imap_host,
         imap_port: imap_port || 993,
-        smtp_host: smtp_host || `smtp.${domain}`,
+        smtp_host,
         smtp_port: smtp_port || 587,
       };
     } else {
@@ -104,7 +137,20 @@ export default async function handler(req, res) {
       });
     } catch (connErr) {
       console.error('IMAP connection test failed:', connErr);
-      return error(res, `Failed to connect to ${provider} mail server. Please check credentials.`);
+      
+      // Provide better error messages
+      let errorMsg = 'Failed to connect to email server. ';
+      if (connErr.message.includes('AUTHENTICATIONFAILED') || connErr.message.includes('Invalid credentials')) {
+        errorMsg += 'Invalid email or password.';
+      } else if (connErr.message.includes('timeout')) {
+        errorMsg += 'Connection timeout - check server settings.';
+      } else if (connErr.message.includes('ENOTFOUND')) {
+        errorMsg += 'Server not found - check IMAP host.';
+      } else {
+        errorMsg += 'Please verify your email, password, and server settings.';
+      }
+      
+      return error(res, errorMsg);
     }
 
     // Check if account already exists

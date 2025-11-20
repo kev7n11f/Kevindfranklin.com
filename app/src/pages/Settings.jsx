@@ -501,7 +501,7 @@ const Settings = () => {
 const IMAPAccountForm = ({ onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     provider: 'icloud',
-    email: '',
+    email_address: '',
     password: '',
     imap_host: '',
     imap_port: '993',
@@ -518,10 +518,34 @@ const IMAPAccountForm = ({ onSuccess, onCancel }) => {
       smtp_host: 'smtp.mail.me.com',
       smtp_port: '587',
     },
-    spacemail: {
-      imap_host: 'imap.spacemail.com',
+    gmail: {
+      imap_host: 'imap.gmail.com',
       imap_port: '993',
-      smtp_host: 'smtp.spacemail.com',
+      smtp_host: 'smtp.gmail.com',
+      smtp_port: '587',
+    },
+    yahoo: {
+      imap_host: 'imap.mail.yahoo.com',
+      imap_port: '993',
+      smtp_host: 'smtp.mail.yahoo.com',
+      smtp_port: '587',
+    },
+    outlook: {
+      imap_host: 'outlook.office365.com',
+      imap_port: '993',
+      smtp_host: 'smtp.office365.com',
+      smtp_port: '587',
+    },
+    spacemail: {
+      imap_host: 'mail.spacemail.com',
+      imap_port: '993',
+      smtp_host: 'mail.spacemail.com',
+      smtp_port: '465',
+    },
+    custom: {
+      imap_host: '',
+      imap_port: '993',
+      smtp_host: '',
       smtp_port: '587',
     },
   }
@@ -567,10 +591,16 @@ const IMAPAccountForm = ({ onSuccess, onCancel }) => {
           onChange={(e) => handleProviderChange(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
+          <option value="gmail">Gmail (IMAP)</option>
+          <option value="outlook">Outlook / Office 365</option>
           <option value="icloud">iCloud Mail</option>
+          <option value="yahoo">Yahoo Mail</option>
           <option value="spacemail">Spacemail</option>
           <option value="custom">Custom IMAP/SMTP</option>
         </select>
+        <p className="text-sm text-gray-500 mt-1">
+          Server settings are auto-filled for common providers
+        </p>
       </div>
 
       <div>
@@ -580,8 +610,8 @@ const IMAPAccountForm = ({ onSuccess, onCancel }) => {
         <input
           type="email"
           required
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          value={formData.email_address}
+          onChange={(e) => setFormData({ ...formData, email_address: e.target.value })}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           placeholder="your@email.com"
         />
@@ -599,7 +629,11 @@ const IMAPAccountForm = ({ onSuccess, onCancel }) => {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         />
         <p className="text-sm text-gray-500 mt-1">
-          For iCloud, use an app-specific password from appleid.apple.com
+          <strong>Important:</strong> For iCloud, Gmail, and most providers with 2FA, you need an <strong>app-specific password</strong>, not your regular password.
+          <br/>
+          • iCloud: <a href="https://appleid.apple.com" target="_blank" rel="noopener" className="text-blue-600 underline">appleid.apple.com</a> → Security → App-Specific Passwords
+          <br/>
+          • Gmail: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener" className="text-blue-600 underline">Google App Passwords</a>
         </p>
       </div>
 

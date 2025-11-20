@@ -42,12 +42,12 @@ export function validateEmailAccount(data) {
     errors.push('Valid email address is required');
   }
 
-  if (!data.provider || !['gmail', 'outlook', 'icloud', 'spacemail'].includes(data.provider)) {
+  if (!data.provider || !['gmail', 'outlook', 'icloud', 'yahoo', 'spacemail', 'custom'].includes(data.provider)) {
     errors.push('Invalid provider');
   }
 
-  // IMAP/SMTP validation for iCloud and Spacemail
-  if (['icloud', 'spacemail'].includes(data.provider)) {
+  // IMAP/SMTP validation for non-OAuth providers
+  if (['icloud', 'yahoo', 'spacemail', 'custom'].includes(data.provider)) {
     if (!data.password) {
       errors.push('Password is required for IMAP/SMTP providers');
     }
