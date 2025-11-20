@@ -5,7 +5,7 @@
   "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/(bio|contact).html",
+      "source": "/(bio|contact|privacy|terms).html",
       "destination": "/$1.html"
     },
     {
