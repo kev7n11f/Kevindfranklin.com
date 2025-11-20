@@ -5,6 +5,7 @@ Personal website for Kevin D Franklin - A modern, responsive website built with 
 ## About
 
 This is a personal portfolio website featuring:
+
 - Home page with hero section
 - Bio/About page with personal information
 - Contact page with form and contact information
@@ -20,15 +21,19 @@ The website is hosted at: [www.kevindfranklin.com](https://www.kevindfranklin.co
 To view the website on your local machine:
 
 ### Option 1: Direct File Access
+
 Simply open any of the HTML files in your web browser:
+
 - `index.html` - Home page
 - `bio.html` - Bio/About page
 - `contact.html` - Contact page
 
 ### Option 2: Local Web Server (Recommended)
+
 For the best experience and to test all features properly, use a local web server:
 
 #### Using Python
+
 ```bash
 # Python 3
 python3 -m http.server 8000
@@ -40,6 +45,7 @@ python -m SimpleHTTPServer 8000
 Then open your browser and navigate to: `http://localhost:8000`
 
 #### Using Node.js
+
 ```bash
 # Install http-server globally (one time)
 npm install -g http-server
@@ -51,6 +57,7 @@ http-server -p 8000
 Then open your browser and navigate to: `http://localhost:8000`
 
 #### Using PHP
+
 ```bash
 php -S localhost:8000
 ```
@@ -59,7 +66,7 @@ Then open your browser and navigate to: `http://localhost:8000`
 
 ## Project Structure
 
-```
+```text
 Kevindfranklin.com/
 ├── index.html      # Home page
 ├── bio.html        # Biography/About page
@@ -88,6 +95,7 @@ Kevindfranklin.com/
 ## Deployment
 
 This website is configured for deployment on GitHub Pages:
+
 1. The `CNAME` file configures the custom domain
 2. GitHub Pages automatically serves the site from the repository
 3. Any commits to the main branch will automatically update the live site
@@ -104,6 +112,7 @@ To customize the website for your own use:
 ## Browser Support
 
 The website is compatible with all modern browsers:
+
 - Chrome (latest)
 - Firefox (latest)
 - Safari (latest)
@@ -116,4 +125,4 @@ The website is compatible with all modern browsers:
 
 ## Contact
 
-For any questions or inquiries, visit the [Contact page](https://www.kevindfranklin.com/contact.html) or email: info@kevindfranklin.com
+For any questions or inquiries, visit the [Contact page](https://www.kevindfranklin.com/contact.html) or email: <info@kevindfranklin.com>

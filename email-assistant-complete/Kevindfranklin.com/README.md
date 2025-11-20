@@ -88,6 +88,7 @@ Kevindfranklin.com/
 ## Deployment
 
 This website is configured for deployment on GitHub Pages:
+
 1. The `CNAME` file configures the custom domain
 2. GitHub Pages automatically serves the site from the repository
 3. Any commits to the main branch will automatically update the live site
@@ -104,6 +105,7 @@ To customize the website for your own use:
 ## Browser Support
 
 The website is compatible with all modern browsers:
+
 - Chrome (latest)
 - Firefox (latest)
 - Safari (latest)
@@ -116,4 +118,4 @@ The website is compatible with all modern browsers:
 
 ## Contact
 
-For any questions or inquiries, visit the [Contact page](https://www.kevindfranklin.com/contact.html) or email: info@kevindfranklin.com
+For any questions or inquiries, visit the [Contact page](https://www.kevindfranklin.com/contact.html) or email: <info@kevindfranklin.com>

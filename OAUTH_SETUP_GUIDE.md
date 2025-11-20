@@ -36,12 +36,14 @@ MICROSOFT_REDIRECT_URI=https://www.kevindfranklin.com/api/email/connect/outlook-
 ### 2. Supported Methods
 
 #### OAuth (Gmail & Outlook) - Recommended
+
 - Users click "Connect Gmail/Outlook"
 - Redirected to Google/Microsoft login
 - Grant permissions
 - Tokens stored encrypted in database
 
 #### IMAP/SMTP (Any provider)
+
 - Users enter their email and password
 - Support for iCloud, custom providers
 - Credentials encrypted in database
@@ -97,10 +99,12 @@ email_accounts table:
 ## Files Created/Updated
 
 ### ✅ OAuth Callback Handlers (New)
+
 - `api/email/connect/gmail-callback.js` - Handles Google OAuth callback
 - `api/email/connect/outlook-callback.js` - Handles Microsoft OAuth callback
 
 ### ✅ Updated Files
+
 - `app/src/pages/Settings.jsx` - Handles OAuth redirect messages
 - `db/connection.js` - Fixed to use POSTGRES_URL fallback
 - `api/email/accounts.js` - Fixed column name mismatch
@@ -110,7 +114,6 @@ email_accounts table:
 
 ### OAuth Flow Diagram
 
-```
 User clicks "Connect Gmail"
     ↓
 Frontend calls GET /api/email/connect/gmail
@@ -128,11 +131,9 @@ Backend exchanges code for tokens
 Tokens encrypted and saved to database for this user
     ↓
 User redirected back to /settings with success message
-```
 
 ### IMAP Flow
 
-```
 User fills IMAP form (email, password, hosts)
     ↓
 Frontend submits to POST /api/email/connect/imap
@@ -142,7 +143,6 @@ Backend tests IMAP connection
 If successful, credentials encrypted and saved to database
     ↓
 User sees account in their list
-```
 
 ## Security Features
 
@@ -181,20 +181,24 @@ User sees account in their list
 ## Common Issues
 
 ### "401 Unauthorized" when connecting Gmail
+
 - Check `GOOGLE_CLIENT_ID` is set
 - Verify redirect URI matches exactly in Google Console
 
 ### "500 Internal Server Error" on accounts page  
+
 - Check `DATABASE_URL` is set
 - Run database migrations
 
 ### OAuth redirects to wrong URL
+
 - Update `GOOGLE_REDIRECT_URI` / `MICROSOFT_REDIRECT_URI` in env
 - Must match exactly what's in OAuth provider console
 
 ## Summary
 
 Your application is **correctly architected** for multi-user email management:
+
 - ✅ Users add their own accounts through the UI
 - ✅ Credentials stored encrypted per user in database
 - ✅ Environment variables only for app-level OAuth credentials
