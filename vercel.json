@@ -5,10 +5,6 @@
   "installCommand": "npm install",
   "rewrites": [
     {
-      "source": "/.well-known/microsoft-identity-association.json",
-      "destination": "/.well-known/microsoft-identity-association.json"
-    },
-    {
       "source": "/(bio|contact|privacy|terms).html",
       "destination": "/$1.html"
     },
