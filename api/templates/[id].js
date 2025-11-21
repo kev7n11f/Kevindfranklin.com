@@ -23,11 +23,11 @@ export default async function handler(req, res) {
         [id, user.id]
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return error(res, 'Template not found', 404);
       }
 
-      return success(res, result.rows[0]);
+      return success(res, result[0]);
 
     } catch (err) {
       console.error('Get template error:', err);
@@ -95,13 +95,13 @@ export default async function handler(req, res) {
         params
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return error(res, 'Template not found', 404);
       }
 
       return success(res, {
         message: 'Template updated successfully',
-        template: result.rows[0],
+        template: result[0],
       });
 
     } catch (err) {
@@ -118,7 +118,7 @@ export default async function handler(req, res) {
         [id, user.id]
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return error(res, 'Template not found', 404);
       }
 

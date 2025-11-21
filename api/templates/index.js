@@ -31,8 +31,8 @@ export default async function handler(req, res) {
       );
 
       return success(res, {
-        templates: result.rows,
-        total: result.rows.length,
+        templates: result,
+        total: result.length,
       });
 
     } catch (err) {
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
       return success(res, {
         message: 'Template created successfully',
-        template: result.rows[0],
+        template: result[0],
       }, 201);
 
     } catch (err) {

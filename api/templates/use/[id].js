@@ -30,11 +30,11 @@ export default async function handler(req, res) {
         [id, user.id]
       );
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return error(res, 'Template not found or inactive', 404);
       }
 
-      const template = result.rows[0];
+      const template = result[0];
 
       // Replace variables in subject and body
       let subject = template.subject || '';
