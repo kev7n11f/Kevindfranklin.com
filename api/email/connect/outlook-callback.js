@@ -26,11 +26,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { code, state, error } = req.query;
+    const { code, state, error, error_description } = req.query;
 
     if (error) {
       console.error('OAuth error:', error);
-      return res.redirect(`/settings?error=${encodeURIComponent('Authorization denied')}`);
+      console.error('OAuth error description:', error_description);
+      console.error('Full query params:', req.query);
+      const errorMsg = error_description || error || 'Authorization denied';
+      return res.redirect(`/settings?error=${encodeURIComponent(errorMsg)}`);
     }
 
     if (!code) {
@@ -68,7 +71,10 @@ export default async function handler(req, res) {
     if (!tokenResponse.ok) {
       const errorData = await tokenResponse.json();
       console.error('Microsoft token exchange error:', errorData);
-      return res.redirect('/settings?error=token_exchange_failed');
+      console.error('Token exchange status:', tokenResponse.status);
+      console.error('Token exchange URL:', tokenUrl);
+      const errorMsg = errorData.error_description || errorData.error || 'Token exchange failed';
+      return res.redirect(`/settings?error=${encodeURIComponent(errorMsg)}`);
     }
 
     const tokens = await tokenResponse.json();
