@@ -564,7 +564,14 @@ async function storeEmail(emailData, account) {
  */
 async function analyzeEmailAsync(userId, email) {
   try {
+    console.log(`[AI Analysis] Starting analysis for email ${email.id} from ${email.from_address}`);
     const analysis = await analyzeEmail(userId, email);
+
+    console.log(`[AI Analysis] Successfully analyzed email ${email.id}:`, {
+      priority: analysis.priority_level,
+      category: analysis.category,
+      sentiment: analysis.sentiment
+    });
 
     // Update email with AI analysis
     await query(
@@ -606,7 +613,13 @@ async function analyzeEmailAsync(userId, email) {
     }
 
   } catch (err) {
-    console.error('Email analysis failed:', err);
+    console.error(`[AI Analysis] FAILED for email ${email.id}:`, {
+      error: err.message,
+      stack: err.stack,
+      emailFrom: email.from_address,
+      emailSubject: email.subject,
+      userId
+    });
     // Don't throw - analysis failures shouldn't stop email sync
   }
 }
