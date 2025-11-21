@@ -8,6 +8,12 @@ import { analyzeEmail } from './claude.js';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0';
 const MICROSOFT_TOKEN_ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
+// Circuit breaker for AI analysis
+let aiAnalysisEnabled = process.env.ENABLE_AI_ANALYSIS !== 'false';
+let consecutiveAIErrors = 0;
+const MAX_CONSECUTIVE_AI_ERRORS = 5;
+let aiCircuitBreakerResetTime = null;
+
 /**
  * Sync emails for a specific account
  */
@@ -560,12 +566,50 @@ async function storeEmail(emailData, account) {
 }
 
 /**
+ * Check if AI analysis should be run (circuit breaker)
+ */
+function shouldRunAIAnalysis() {
+  // Check if AI analysis is globally disabled
+  if (!aiAnalysisEnabled) {
+    return false;
+  }
+
+  // Check if circuit breaker is active
+  if (aiCircuitBreakerResetTime && Date.now() < aiCircuitBreakerResetTime) {
+    return false;
+  }
+
+  // Reset circuit breaker if enough time has passed
+  if (aiCircuitBreakerResetTime && Date.now() >= aiCircuitBreakerResetTime) {
+    console.log('[AI Analysis] Circuit breaker reset - re-enabling AI analysis');
+    consecutiveAIErrors = 0;
+    aiCircuitBreakerResetTime = null;
+  }
+
+  return true;
+}
+
+/**
  * Trigger AI analysis asynchronously (don't wait)
  */
 async function analyzeEmailAsync(userId, email) {
+  // Check circuit breaker
+  if (!shouldRunAIAnalysis()) {
+    if (aiCircuitBreakerResetTime) {
+      const resetIn = Math.ceil((aiCircuitBreakerResetTime - Date.now()) / 60000);
+      console.log(`[AI Analysis] SKIPPED for email ${email.id} - Circuit breaker active (resets in ${resetIn} min)`);
+    } else {
+      console.log(`[AI Analysis] SKIPPED for email ${email.id} - AI analysis disabled`);
+    }
+    return;
+  }
+
   try {
     console.log(`[AI Analysis] Starting analysis for email ${email.id} from ${email.from_address}`);
     const analysis = await analyzeEmail(userId, email);
+
+    // Reset error counter on success
+    consecutiveAIErrors = 0;
 
     console.log(`[AI Analysis] Successfully analyzed email ${email.id}:`, {
       priority: analysis.priority_level,
@@ -613,13 +657,29 @@ async function analyzeEmailAsync(userId, email) {
     }
 
   } catch (err) {
-    console.error(`[AI Analysis] FAILED for email ${email.id}:`, {
+    consecutiveAIErrors++;
+
+    // Check for rate limit or budget errors
+    const isRateLimitError = err.message.includes('rate_limit') ||
+                            err.message.includes('Budget limit') ||
+                            err.message.includes('quota') ||
+                            err.message.includes('429');
+
+    console.error(`[AI Analysis] FAILED for email ${email.id} (${consecutiveAIErrors}/${MAX_CONSECUTIVE_AI_ERRORS}):`, {
       error: err.message,
-      stack: err.stack,
+      isRateLimitError,
       emailFrom: email.from_address,
       emailSubject: email.subject,
       userId
     });
+
+    // Activate circuit breaker if too many consecutive errors
+    if (consecutiveAIErrors >= MAX_CONSECUTIVE_AI_ERRORS) {
+      const breakerDurationMinutes = isRateLimitError ? 60 : 15;
+      aiCircuitBreakerResetTime = Date.now() + (breakerDurationMinutes * 60 * 1000);
+      console.error(`[AI Analysis] CIRCUIT BREAKER ACTIVATED - Too many consecutive errors. AI analysis disabled for ${breakerDurationMinutes} minutes.`);
+    }
+
     // Don't throw - analysis failures shouldn't stop email sync
   }
 }
