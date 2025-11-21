@@ -40,13 +40,20 @@ export default async function handler(req, res) {
       return res.redirect('/settings?error=missing_code');
     }
 
-    // Decode state to get user ID
+    // Decode state to get user ID and code verifier
     let userId;
+    let codeVerifier;
     try {
       const stateData = JSON.parse(state);
       userId = stateData.userId;
+      codeVerifier = stateData.codeVerifier;
     } catch (e) {
       return res.redirect('/settings?error=invalid_state');
+    }
+
+    if (!codeVerifier) {
+      console.error('Missing code verifier in state');
+      return res.redirect('/settings?error=missing_code_verifier');
     }
 
     // Exchange code for tokens
@@ -64,6 +71,7 @@ export default async function handler(req, res) {
         code,
         redirect_uri: process.env.MICROSOFT_REDIRECT_URI || 'https://www.kevindfranklin.com/api/email/connect/outlook-callback',
         grant_type: 'authorization_code',
+        code_verifier: codeVerifier,
         scope: SCOPES.join(' '),
       }),
     });

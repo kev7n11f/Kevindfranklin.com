@@ -2,6 +2,7 @@ import { authenticate } from '../../middleware/auth.js';
 import { query } from '../../../db/connection.js';
 import { encrypt } from '../../utils/encryption.js';
 import { success, error, handleCors, badRequest } from '../../utils/response.js';
+import crypto from 'crypto';
 
 const MICROSOFT_AUTH_ENDPOINT = 'https://login.microsoftonline.com';
 const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0';
@@ -14,6 +15,15 @@ const SCOPES = [
   'offline_access',
 ];
 
+// PKCE helper functions
+function generateCodeVerifier() {
+  return crypto.randomBytes(32).toString('base64url');
+}
+
+function generateCodeChallenge(verifier) {
+  return crypto.createHash('sha256').update(verifier).digest('base64url');
+}
+
 export default async function handler(req, res) {
   handleCors(req, res);
   if (req.method === 'OPTIONS') return;
@@ -23,10 +33,14 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Step 1: Generate authorization URL
+      // Step 1: Generate authorization URL with PKCE
       const tenantId = process.env.MICROSOFT_TENANT_ID || 'common';
       const clientId = process.env.MICROSOFT_CLIENT_ID;
       const redirectUri = process.env.MICROSOFT_REDIRECT_URI;
+
+      // Generate PKCE values
+      const codeVerifier = generateCodeVerifier();
+      const codeChallenge = generateCodeChallenge(codeVerifier);
 
       const authUrl = new URL(`${MICROSOFT_AUTH_ENDPOINT}/${tenantId}/oauth2/v2.0/authorize`);
       authUrl.searchParams.append('client_id', clientId);
@@ -34,8 +48,10 @@ export default async function handler(req, res) {
       authUrl.searchParams.append('redirect_uri', redirectUri);
       authUrl.searchParams.append('scope', SCOPES.join(' '));
       authUrl.searchParams.append('response_mode', 'query');
-      authUrl.searchParams.append('state', JSON.stringify({ userId: user.id }));
+      authUrl.searchParams.append('state', JSON.stringify({ userId: user.id, codeVerifier }));
       authUrl.searchParams.append('prompt', 'consent');
+      authUrl.searchParams.append('code_challenge', codeChallenge);
+      authUrl.searchParams.append('code_challenge_method', 'S256');
 
       return success(res, { authUrl: authUrl.toString() }, 'Authorization URL generated');
 
